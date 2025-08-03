@@ -38,7 +38,6 @@ class NWSManager:
             self.gridX = data_object['properties']['gridX']
             self.gridY = data_object['properties']['gridY']
             self.city = data_object['properties']['relativeLocation']['properties']['city']
-            self.forecast_url = data_object['properties']['forecast']
             self.wfo = data_object['properties']['gridId']
 
             response = requests.get(
@@ -133,7 +132,7 @@ class NWSManager:
 
     def display_forecast(self):
         response = requests.get(
-            f"{self.forecast_url}"
+            f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/forecast"
         )
 
         if response.status_code == 200:
