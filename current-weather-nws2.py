@@ -144,6 +144,12 @@ class NWSManager:
             data_object_sr_sr = json.loads(response_sr_ss.text)
             sunrise = data_object_sr_sr['results']['sunrise']
             sunset = data_object_sr_sr['results']['sunset']
+            if sunrise.count(':') > 1:
+                last_colon_index = sunrise.rfind(':')
+                sunrise = sunrise[:last_colon_index] + sunrise[last_colon_index + 3:]
+            if sunset.count(':') > 1:
+                last_colon_index = sunset.rfind(':')
+                sunset = sunset[:last_colon_index] + sunset[last_colon_index + 3:]
 
         if sunrise is not None and sunset is not None:
             print(f"{self.leading_spaces}sunrise at {sunrise}, sunset at {sunset}")
