@@ -73,7 +73,10 @@ class NWSManager:
             local_update = NWSHelpers.get_local_time(updated_utc, self.time_zone)
 
             print(f"{self.city}, {self.state}")
-            print(f"{self.closestStationName} @ {local_update}")
+            NWSHelpers.display_wrapped_text(
+                f"{self.closestStationName} @ {local_update}",
+                f"{self.leading_spaces}"
+            )
 
             current_temperature = NWSHelpers.get_whole_number(
                 NWSHelpers.get_fahrenheit_value(
