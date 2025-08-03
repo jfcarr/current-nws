@@ -117,7 +117,7 @@ class NWSManager:
             #wind_direction_unit_code = data_object['properties']['windDirection']['unitCode']
             wind_direction = NWSHelpers.get_cardinal_direction(wind_direction)
 
-            if wind_speed == "???":
+            if wind_speed == "???" or wind_speed == "0":
                 wind_description = "wind is calm"
             else:
                 wind_description = f"wind ({wind_direction}) speed is {wind_speed} mph"
