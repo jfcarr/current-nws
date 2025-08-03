@@ -24,6 +24,7 @@ class NWSManager:
         self.detail_indent = detail_indent
         self.leading_spaces = NWSHelpers.get_padded_string(detail_indent)
         self.service_url = 'https://api.weather.gov'
+        self.sunrise_sunset_url = 'https://api.sunrise-sunset.org/json?'
         self.get_points_station_info()
 
     def get_points_station_info(self):
@@ -131,6 +132,23 @@ class NWSManager:
 
     def display_separator(self):
         print(f"{self.leading_spaces}-----")
+
+    def display_sunrise_sunset(self):
+        response_sr_ss = requests.get(
+            f"{self.sunrise_sunset_url}lat={self.latitude}&lng={self.longitude}&tzid={self.time_zone}"
+        )
+
+        sunrise = None
+        sunset = None
+        if response_sr_ss.status_code == 200:
+            data_object_sr_sr = json.loads(response_sr_ss.text)
+            sunrise = data_object_sr_sr['results']['sunrise']
+            sunset = data_object_sr_sr['results']['sunset']
+
+        if sunrise is not None and sunset is not None:
+            print(f"{self.leading_spaces}sunrise at {sunrise}, sunset at {sunset}")
+        else:
+            print(f"{self.leading_spaces}sunrise and sunset data unavailable")
 
     def display_forecast(self):
         response = requests.get(
@@ -241,6 +259,7 @@ def main():
 
     nws_mgr = NWSManager(args.latitude, args.longitude)
     nws_mgr.display_current_conditions()
+    nws_mgr.display_sunrise_sunset()
     nws_mgr.display_separator()
     nws_mgr.display_forecast()
 
