@@ -38,6 +38,7 @@ class NWSManager:
             self.gridX = data_object['properties']['gridX']
             self.gridY = data_object['properties']['gridY']
             self.city = data_object['properties']['relativeLocation']['properties']['city']
+            self.state = data_object['properties']['relativeLocation']['properties']['state']
             self.wfo = data_object['properties']['gridId']
 
             response = requests.get(
@@ -70,6 +71,7 @@ class NWSManager:
             updated_utc = data_object['properties']['timestamp']
             local_update = NWSHelpers.get_local_time(updated_utc, self.time_zone)
 
+            print(f"{self.city}, {self.state}")
             print(f"{self.closestStationName} @ {local_update}")
 
             current_temperature = NWSHelpers.get_whole_number(
