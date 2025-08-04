@@ -124,13 +124,20 @@ class NWSManager:
                 if wind_gust != "???":
                     wind_description = f"{wind_description}, gusting to {wind_gust} mph"
 
-            print(f"{self.leading_spaces}{current_temperature}{degree_sign}{feels_like_description}")
+            if current_temperature == "???":
+                print(f"{self.leading_spaces}current temperature is not available")
+            else:
+                print(f"{self.leading_spaces}{current_temperature}{degree_sign}{feels_like_description}")
             NWSHelpers.display_wrapped_text(
                 f"{data_object['properties']['textDescription']}",
                 f"{self.leading_spaces}"
             )
-            #print(f"{self.leading_spaces}{data_object['properties']['textDescription']}")
-            print(f"{self.leading_spaces}relative humidity is {relative_humidity}%, dewpoint is {dew_point}{degree_sign}")
+
+            NWSHelpers.display_wrapped_text(
+                f"relative humidity is {"not available" if relative_humidity == "???" else f"{relative_humidity}%"}, dewpoint is {dew_point}{degree_sign}",
+                f"{self.leading_spaces}"
+            )
+
             print(f"{self.leading_spaces}{wind_description}")
 
     def display_separator(self):
