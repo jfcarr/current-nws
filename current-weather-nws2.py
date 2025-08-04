@@ -118,13 +118,13 @@ class NWSManager:
             wind_direction = NWSHelpers.get_cardinal_direction(wind_direction)
 
             if wind_speed == "???" or wind_speed == "0":
-                wind_description = "wind is calm"
+                wind_description = "Wind is Calm"
             else:
-                wind_description = f"wind ({wind_direction}) speed is {wind_speed} mph"
+                wind_description = f"Wind ({wind_direction}) Speed is {wind_speed} MPH"
                 if wind_gust != "???":
-                    wind_description = f"{wind_description}, gusting to {wind_gust} mph"
+                    wind_description = f"{wind_description}, Gusting to {wind_gust} MPH"
 
-            condition_summary = f"current temperature is not available" if current_temperature == "???" else f"{current_temperature}{degree_sign}{feels_like_description}"
+            condition_summary = f"Current Temperature is not available" if current_temperature == "???" else f"{current_temperature}{degree_sign}{feels_like_description}"
             condition_summary = f"{condition_summary}, {data_object['properties']['textDescription']}"
             NWSHelpers.display_wrapped_text(
                 condition_summary,
@@ -132,7 +132,7 @@ class NWSManager:
             )
 
             NWSHelpers.display_wrapped_text(
-                f"relative humidity is {"not available" if relative_humidity == "???" else f"{relative_humidity}%"}, dewpoint is {"not available" if dew_point == "???" else f"{dew_point}{degree_sign}"}",
+                f"Relative Humidity is {"not available" if relative_humidity == "???" else f"{relative_humidity}%"}, Dewpoint is {"not available" if dew_point == "???" else f"{dew_point}{degree_sign}"}",
                 f"{self.leading_spaces}"
             )
 
@@ -160,9 +160,9 @@ class NWSManager:
                 sunset = sunset[:last_colon_index] + sunset[last_colon_index + 3:]
 
         if sunrise is not None and sunset is not None:
-            print(f"{self.leading_spaces}sunrise at {sunrise}, sunset at {sunset}")
+            print(f"{self.leading_spaces}Sunrise at {sunrise}, Sunset at {sunset}")
         else:
-            print(f"{self.leading_spaces}sunrise and sunset data unavailable")
+            print(f"{self.leading_spaces}Sunrise and Sunset data unavailable")
 
     def display_forecast(self):
         response = requests.get(
