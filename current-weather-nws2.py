@@ -124,12 +124,10 @@ class NWSManager:
                 if wind_gust != "???":
                     wind_description = f"{wind_description}, gusting to {wind_gust} mph"
 
-            if current_temperature == "???":
-                print(f"{self.leading_spaces}current temperature is not available")
-            else:
-                print(f"{self.leading_spaces}{current_temperature}{degree_sign}{feels_like_description}")
+            condition_summary = f"current temperature is not available" if current_temperature == "???" else f"{current_temperature}{degree_sign}{feels_like_description}"
+            condition_summary = f"{condition_summary}, {data_object['properties']['textDescription']}"
             NWSHelpers.display_wrapped_text(
-                f"{data_object['properties']['textDescription']}",
+                condition_summary,
                 f"{self.leading_spaces}"
             )
 
