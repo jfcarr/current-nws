@@ -132,7 +132,7 @@ class NWSManager:
             )
 
             NWSHelpers.display_wrapped_text(
-                f"relative humidity is {"not available" if relative_humidity == "???" else f"{relative_humidity}%"}, dewpoint is {dew_point}{degree_sign}",
+                f"relative humidity is {"not available" if relative_humidity == "???" else f"{relative_humidity}%"}, dewpoint is {"not available" if dew_point == "???" else f"{dew_point}{degree_sign}"}",
                 f"{self.leading_spaces}"
             )
 
