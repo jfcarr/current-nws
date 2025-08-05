@@ -18,9 +18,10 @@ import pytz
 degree_sign = u'\N{DEGREE SIGN}'
 
 class NWSManager:
-    def __init__(self, latitude, longitude, detail_indent=2):
+    def __init__(self, latitude, longitude, stationid, detail_indent=2):
         self.latitude = latitude
         self.longitude = longitude
+        self.stationid = stationid
         self.detail_indent = detail_indent
         self.leading_spaces = NWSHelpers.get_padded_string(detail_indent)
         self.service_url = 'https://api.weather.gov'
@@ -49,16 +50,18 @@ class NWSManager:
             if response.status_code == 200:
                 data_object = json.loads(response.text)
 
-                self.closestStationIdentifier = data_object['features'][0]['properties']['stationIdentifier']
-                self.closestStationName = data_object['features'][0]['properties']['name']
+                self.closestStationIdentifier = None
+                if self.stationid != 'NONE':
+                    for feature in data_object['features']:
+                        if feature['properties']['stationIdentifier'] == self.stationid:
+                            self.closestStationIdentifier = self.stationid
+                            self.closestStationName = feature['properties']['name']
+                            self.time_zone = feature['properties']['timeZone']
+                if self.closestStationIdentifier is None:
+                    self.closestStationIdentifier = data_object['features'][0]['properties']['stationIdentifier']
+                    self.closestStationName = data_object['features'][0]['properties']['name']
+                    self.time_zone = data_object['features'][0]['properties']['timeZone']
 
-                response = requests.get(
-                    f"{self.service_url}/stations/{self.closestStationIdentifier}"
-                )
-
-                if response.status_code == 200:
-                    data_object = json.loads(response.text)
-                    self.time_zone = data_object['properties']['timeZone']
 
     def display_current_conditions(self):
         response = requests.get(
@@ -165,6 +168,7 @@ class NWSManager:
             print(f"{self.leading_spaces}Sunrise and Sunset data unavailable")
 
     def display_forecast(self):
+
         response = requests.get(
             f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/forecast"
         )
@@ -269,9 +273,10 @@ def main():
     parser = argparse.ArgumentParser(description='A simple argument parser example.')
     parser.add_argument('--latitude', type=float, help='Your latitude, e.g. 39.6142', required=True)
     parser.add_argument('--longitude', type=float, help='Your longitude, e.g. -84.5560', required=True)
+    parser.add_argument('--stationid', type=str, help='Specific station id to use, e.g., "KGMY"', default='NONE')
     args = parser.parse_args()
 
-    nws_mgr = NWSManager(args.latitude, args.longitude)
+    nws_mgr = NWSManager(args.latitude, args.longitude, args.stationid)
     nws_mgr.display_current_conditions()
     nws_mgr.display_sunrise_sunset()
     nws_mgr.display_separator()
