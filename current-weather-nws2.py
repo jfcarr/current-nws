@@ -176,13 +176,17 @@ class NWSManager:
         if response.status_code == 200:
             # print (json.dumps(response.json(), indent=4))  # DEBUG ONLY!
             data_object = json.loads(response.text)
+            longest_name = 0
             for period in range(1,9):
-                name = data_object['properties']['periods'][period]['name']
+                name_length = len(data_object['properties']['periods'][period]['name'])
+                longest_name = name_length if name_length > longest_name else longest_name
+            for period in range(1,9):
+                name = data_object['properties']['periods'][period]['name'].ljust(longest_name + 1)
                 temperature = f"{data_object['properties']['periods'][period]['temperature']}{degree_sign}"
                 short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
                 precip = f"({data_object['properties']['periods'][period]['probabilityOfPrecipitation']['value']}% precip)"
                 
-                forecast_row = f"{name}: {temperature}, {short_forecast} {precip}"
+                forecast_row = f"{name} {temperature}, {short_forecast} {precip}"
                 
                 NWSHelpers.display_wrapped_text(forecast_row, f"{self.leading_spaces}")
 
