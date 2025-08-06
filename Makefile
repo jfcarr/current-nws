@@ -1,6 +1,7 @@
 default:
 	@echo 'Targets:'
 	@echo '  run'
+	@echo '  run-s'
 	@echo '  deploy'
 
 run:

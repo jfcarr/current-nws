@@ -177,10 +177,10 @@ class NWSManager:
             # print (json.dumps(response.json(), indent=4))  # DEBUG ONLY!
             data_object = json.loads(response.text)
             longest_name = 0
-            for period in range(1,9):
+            for period in range(0,8):
                 name_length = len(data_object['properties']['periods'][period]['name'])
                 longest_name = name_length if name_length > longest_name else longest_name
-            for period in range(1,9):
+            for period in range(0,8):
                 name = data_object['properties']['periods'][period]['name'].ljust(longest_name + 1)
                 temperature = f"{data_object['properties']['periods'][period]['temperature']}{degree_sign}"
                 short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
