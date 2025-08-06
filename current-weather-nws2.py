@@ -176,7 +176,7 @@ class NWSManager:
         if response.status_code == 200:
             # print (json.dumps(response.json(), indent=4))  # DEBUG ONLY!
             data_object = json.loads(response.text)
-            for period in range(0,8):
+            for period in range(1,9):
                 name = data_object['properties']['periods'][period]['name']
                 temperature = f"{data_object['properties']['periods'][period]['temperature']}{degree_sign}"
                 short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
