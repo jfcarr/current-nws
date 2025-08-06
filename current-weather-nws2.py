@@ -186,7 +186,7 @@ class NWSManager:
                 short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
                 precip = f"({data_object['properties']['periods'][period]['probabilityOfPrecipitation']['value']}% precip)"
                 
-                forecast_row = f"{name} {temperature}, {short_forecast} {precip}"
+                forecast_row = f"{name} {temperature}  {short_forecast} {precip}"
                 
                 NWSHelpers.display_wrapped_text(forecast_row, f"{self.leading_spaces}")
 
