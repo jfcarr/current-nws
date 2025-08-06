@@ -73,7 +73,7 @@ class NWSManager:
             data_object = json.loads(response.text)
 
             updated_utc = data_object['properties']['timestamp']
-            local_update = NWSHelpers.get_local_time(updated_utc, self.time_zone)
+            local_update = NWSHelpers.get_local_time(updated_utc, self.time_zone).lstrip('0')
 
             print(f"{self.city}, {self.state}")
             NWSHelpers.display_wrapped_text(
