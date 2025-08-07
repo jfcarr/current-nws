@@ -176,9 +176,14 @@ class NWSManager:
             print(f"{self.leading_spaces}Sunrise and Sunset data unavailable")
 
     def display_forecast(self):
+        headers = {
+            'User-Agent': 'python-restclient',
+            'Accept': 'application/json'
+        }
 
         response = requests.get(
-            f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/forecast"
+            f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/forecast",
+            headers=headers
         )
 
         if response.status_code == 200:
