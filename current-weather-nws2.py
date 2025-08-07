@@ -25,12 +25,17 @@ class NWSManager:
         self.detail_indent = detail_indent
         self.leading_spaces = NWSHelpers.get_padded_string(detail_indent)
         self.service_url = 'https://api.weather.gov'
+        self.headers = {
+            'User-Agent': 'python-restclient',
+            'Accept': 'application/json'
+        }
         self.sunrise_sunset_url = 'https://api.sunrise-sunset.org/json?'
         self.get_points_station_info()
 
     def get_points_station_info(self):
         response = requests.get(
-            f"{self.service_url}/points/{self.latitude},{self.longitude}"
+            f"{self.service_url}/points/{self.latitude},{self.longitude}",
+            headers=self.headers
         )
 
         if response.status_code == 200:
@@ -44,7 +49,8 @@ class NWSManager:
             self.wfo = data_object['properties']['gridId']
 
             response = requests.get(
-                f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/stations"
+                f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/stations",
+                headers=self.headers
             )
 
             if response.status_code == 200:
@@ -65,7 +71,8 @@ class NWSManager:
 
     def display_current_conditions(self):
         response = requests.get(
-            f"{self.service_url}/stations/{self.closestStationIdentifier}/observations/latest"
+            f"{self.service_url}/stations/{self.closestStationIdentifier}/observations/latest",
+            headers=self.headers
         )
 
         if response.status_code == 200:
@@ -146,7 +153,8 @@ class NWSManager:
 
     def display_sunrise_sunset(self):
         response_sr_ss = requests.get(
-            f"{self.sunrise_sunset_url}lat={self.latitude}&lng={self.longitude}&tzid={self.time_zone}"
+            f"{self.sunrise_sunset_url}lat={self.latitude}&lng={self.longitude}&tzid={self.time_zone}",
+            headers=self.headers
         )
 
         sunrise = None
@@ -176,14 +184,9 @@ class NWSManager:
             print(f"{self.leading_spaces}Sunrise and Sunset data unavailable")
 
     def display_forecast(self):
-        headers = {
-            'User-Agent': 'python-restclient',
-            'Accept': 'application/json'
-        }
-
         response = requests.get(
             f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/forecast",
-            headers=headers
+            headers=self.headers
         )
 
         if response.status_code == 200:
