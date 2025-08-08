@@ -198,13 +198,13 @@ class NWSManager:
             for period in range(0,8):
                 name = data_object['properties']['periods'][period]['name'].ljust(longest_name + 1)
                 temperature = f"{data_object['properties']['periods'][period]['temperature']}{degree_sign}"
-                if period == 0 or period == 1:
+                if period in (0, 1, 2):
                     short_forecast = f"{data_object['properties']['periods'][period]['detailedForecast']}"
                 else:
                     short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
                 precip = f"({data_object['properties']['periods'][period]['probabilityOfPrecipitation']['value']}% precip)"
                 
-                if period == 0 or period == 1:
+                if period in (0, 1, 2):
                     forecast_row = f"{name} {short_forecast}"
                 else:
                     forecast_row = f"{name} {temperature}  {short_forecast} {precip}"
