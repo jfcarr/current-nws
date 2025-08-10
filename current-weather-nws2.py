@@ -197,18 +197,18 @@ class NWSManager:
                 name_length = len(data_object['properties']['periods'][period]['name'])
                 longest_name = name_length if name_length > longest_name else longest_name
             for period in range(0,8):
-                name = data_object['properties']['periods'][period]['name'].ljust(longest_name + 1)
+                name = data_object['properties']['periods'][period]['name']
                 temperature = f"{data_object['properties']['periods'][period]['temperature']}{degree_sign}"
                 if period in (0, 1, 2):
                     short_forecast = f"{data_object['properties']['periods'][period]['detailedForecast']}"
                 else:
                     short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
-                precip = f"({data_object['properties']['periods'][period]['probabilityOfPrecipitation']['value']}% precip)"
+                precip = f"{data_object['properties']['periods'][period]['probabilityOfPrecipitation']['value']}% precip"
                 
                 if period in (0, 1, 2):
-                    forecast_row = f"{name} {short_forecast}"
+                    forecast_row = f"{name}: {short_forecast}"
                 else:
-                    forecast_row = f"{name} {temperature}  {short_forecast} {precip}"
+                    forecast_row = f"{name}: {temperature}, {short_forecast}, {precip}"
                 
                 NWSHelpers.display_wrapped_text(forecast_row, f"{self.leading_spaces}")
 
