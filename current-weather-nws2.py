@@ -18,10 +18,11 @@ import pytz
 degree_sign = u'\N{DEGREE SIGN}'
 
 class NWSManager:
-    def __init__(self, latitude, longitude, stationid, detail_indent=2):
+    def __init__(self, latitude, longitude, stationid, detail_count, detail_indent=2):
         self.latitude = latitude
         self.longitude = longitude
         self.stationid = stationid
+        self.detail_count = detail_count
         self.detail_indent = detail_indent
         self.leading_spaces = NWSHelpers.get_padded_string(detail_indent)
         self.service_url = 'https://api.weather.gov'
@@ -196,16 +197,17 @@ class NWSManager:
             for period in range(0,8):
                 name_length = len(data_object['properties']['periods'][period]['name'])
                 longest_name = name_length if name_length > longest_name else longest_name
+
             for period in range(0,8):
                 name = data_object['properties']['periods'][period]['name']
                 temperature = f"{data_object['properties']['periods'][period]['temperature']}{degree_sign}"
-                if period in (0, 1, 2):
+                if (period + 1) <= self.detail_count:
                     short_forecast = f"{data_object['properties']['periods'][period]['detailedForecast']}"
                 else:
                     short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
                 precip = f"{data_object['properties']['periods'][period]['probabilityOfPrecipitation']['value']}% precip"
                 
-                if period in (0, 1, 2):
+                if (period + 1) <= self.detail_count:
                     forecast_row = f"{name}: {short_forecast}"
                 else:
                     forecast_row = f"{name}: {temperature}, {short_forecast}, {precip}"
@@ -275,7 +277,7 @@ class NWSHelpers:
         return time_in_am_pm
 
     @staticmethod
-    def display_wrapped_text(input_string, prefix_padding, max_width=50):
+    def display_wrapped_text(input_string, prefix_padding, max_width=55):
         result = []
         
         while len(input_string) > 0:
@@ -300,9 +302,10 @@ def main():
     parser.add_argument('--latitude', type=float, help='Your latitude, e.g. 39.6142', required=True)
     parser.add_argument('--longitude', type=float, help='Your longitude, e.g. -84.5560', required=True)
     parser.add_argument('--stationid', type=str, help='Specific station id to use, e.g., "KGMY"', default='NONE')
+    parser.add_argument('--detailcount', type=int, help='Periods of detailed forecast to show.', default=0)
     args = parser.parse_args()
 
-    nws_mgr = NWSManager(args.latitude, args.longitude, args.stationid)
+    nws_mgr = NWSManager(args.latitude, args.longitude, args.stationid, args.detailcount)
     nws_mgr.display_current_conditions()
     nws_mgr.display_sunrise_sunset()
     nws_mgr.display_separator()
