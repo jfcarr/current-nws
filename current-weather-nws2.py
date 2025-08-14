@@ -28,7 +28,9 @@ class NWSManager:
         self.service_url = 'https://api.weather.gov'
         self.headers = {
             'User-Agent': 'current-weather-nws2',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
         }
         self.sunrise_sunset_url = 'https://api.sunrise-sunset.org/json?'
         self.get_points_station_info()
