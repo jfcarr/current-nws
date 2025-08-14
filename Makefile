@@ -1,7 +1,9 @@
 default:
 	@echo 'Targets:'
-	@echo '  run'
-	@echo '  run-s'
+	@echo '  run			-- Just latitude and longitude'
+	@echo '  run-s			-- Include station ID'
+	@echo '  run-detail		-- Show details for first two forecast periods'
+	@echo '  run-nplat		-- Conditions and forecast for North Platte'
 	@echo '  help'
 	@echo '  deploy'
 
