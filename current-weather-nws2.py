@@ -198,23 +198,40 @@ class NWSManager:
                 name_length = len(data_object['properties']['periods'][period]['name'])
                 longest_name = name_length if name_length > longest_name else longest_name
 
-            for period in range(0,8):
-                name = data_object['properties']['periods'][period]['name']
-                temperature = f"{data_object['properties']['periods'][period]['temperature']}{degree_sign}"
-                if (period + 1) <= self.detail_count:
-                    short_forecast = f"{data_object['properties']['periods'][period]['detailedForecast']}"
-                else:
-                    short_forecast = f"{data_object['properties']['periods'][period]['shortForecast']}"
-                precip = f"{data_object['properties']['periods'][period]['probabilityOfPrecipitation']['value']}% precip"
+            forecast_iteration = 1
+            for period in data_object['properties']['periods']:
+                forecast_period_endtime = period['endTime']
+                current_datetime = NWSHelpers.get_current_datetime(self.time_zone)
+                if forecast_period_endtime >= current_datetime:
+                    name = period['name']
+                    temperature = f"{period['temperature']}{degree_sign}"
+                    if forecast_iteration <= self.detail_count:
+                        short_forecast = f"{period['detailedForecast']}"
+                    else:
+                        short_forecast = f"{period['shortForecast']}"
+                    precip = f"{period['probabilityOfPrecipitation']['value']}% precip"
+                    
+                    if forecast_iteration <= self.detail_count:
+                        forecast_row = f"{name}: {short_forecast}"
+                    else:
+                        forecast_row = f"{name}: {temperature}, {short_forecast}, {precip}"
                 
-                if (period + 1) <= self.detail_count:
-                    forecast_row = f"{name}: {short_forecast}"
-                else:
-                    forecast_row = f"{name}: {temperature}, {short_forecast}, {precip}"
-                
-                NWSHelpers.display_wrapped_text(forecast_row, f"{self.leading_spaces}")
+                    NWSHelpers.display_wrapped_text(forecast_row, f"{self.leading_spaces}")
+                    if forecast_iteration == 8:
+                        break
+                    forecast_iteration = forecast_iteration + 1
 
 class NWSHelpers:
+    @staticmethod
+    def get_current_datetime(local_tz):
+        timezone = pytz.timezone(local_tz)
+        current_time = datetime.now(timezone)
+
+        formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S%z')
+        formatted_time = formatted_time[:-2] + ':' + formatted_time[-2:]
+
+        return formatted_time
+
     @staticmethod
     def get_fahrenheit_value(temperature, unit_code):
         if temperature is None:
