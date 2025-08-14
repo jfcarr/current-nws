@@ -69,7 +69,6 @@ class NWSManager:
                     self.closestStationName = data_object['features'][0]['properties']['name']
                     self.time_zone = data_object['features'][0]['properties']['timeZone']
 
-
     def display_current_conditions(self):
         response = requests.get(
             f"{self.service_url}/stations/{self.closestStationIdentifier}/observations/latest",
@@ -148,6 +147,27 @@ class NWSManager:
             )
 
             print(f"{self.leading_spaces}{wind_description}")
+
+    def display_alerts(self):
+        response = requests.get(
+            f"{self.service_url}/alerts/active?point={self.latitude},{self.longitude}",
+            headers=self.headers
+        )
+
+        if response.status_code == 200:
+            data_object = json.loads(response.text)
+
+            if len(data_object['features']) > 0:
+                self.display_separator()
+                for feature in data_object['features']:
+                    alert_endtime = feature['properties']['ends']
+                    current_datetime = NWSHelpers.get_current_datetime(self.time_zone)
+                    if alert_endtime >= current_datetime:
+                        NWSHelpers.display_wrapped_text(
+                            f"{feature['properties']['headline']}",
+                            f"{self.leading_spaces}"
+                        )
+
 
     def display_separator(self):
         print(f"{self.leading_spaces}-----")
@@ -325,6 +345,7 @@ def main():
     nws_mgr = NWSManager(args.latitude, args.longitude, args.stationid, args.detailcount)
     nws_mgr.display_current_conditions()
     nws_mgr.display_sunrise_sunset()
+    nws_mgr.display_alerts()
     nws_mgr.display_separator()
     nws_mgr.display_forecast()
 
