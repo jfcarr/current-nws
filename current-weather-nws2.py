@@ -99,7 +99,7 @@ class NWSManager:
 
             print(f"{self.city}, {self.state}")
             NWSHelpers.display_wrapped_text(
-                f"{self.closestStationName} @ {local_update}", f"{self.leading_spaces}"
+                f"{self.closestStationName} @ {local_update}"
             )
 
             current_temperature = NWSHelpers.get_whole_number(
@@ -158,7 +158,7 @@ class NWSManager:
             else:
                 wind_description = f"Wind ({wind_direction}) Speed is {wind_speed} MPH"
                 if wind_gust != "???":
-                    wind_description = f"{wind_description}, Gusting to {wind_gust} MPH"
+                    wind_description = f"{wind_description}, gusting to {wind_gust} MPH"
 
             condition_summary = (
                 "Current Temperature is not available"
@@ -168,14 +168,13 @@ class NWSManager:
             condition_summary = (
                 f"{condition_summary}, {data_object['properties']['textDescription']}"
             )
-            NWSHelpers.display_wrapped_text(condition_summary, f"{self.leading_spaces}")
+            NWSHelpers.display_wrapped_text(condition_summary)
 
             NWSHelpers.display_wrapped_text(
-                f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}",
-                f"{self.leading_spaces}",
+                f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}"
             )
 
-            print(f"{self.leading_spaces}{wind_description}")
+            NWSHelpers.display_wrapped_text(f"{wind_description}")
 
     def display_alerts(self):
         response = requests.get(
@@ -193,12 +192,11 @@ class NWSManager:
                     current_datetime = NWSHelpers.get_current_datetime(self.time_zone)
                     if alert_endtime >= current_datetime:
                         NWSHelpers.display_wrapped_text(
-                            f"{feature['properties']['headline']}",
-                            f"{self.leading_spaces}",
+                            f"{feature['properties']['headline']}"
                         )
 
     def display_separator(self):
-        print(f"{self.leading_spaces}-----")
+        NWSHelpers.display_wrapped_text("-----")
 
     def display_sunrise_sunset(self):
         response_sr_ss = requests.get(
@@ -228,11 +226,12 @@ class NWSManager:
 
         if sunrise is not None and sunset is not None:
             NWSHelpers.display_wrapped_text(
-                f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}",
-                f"{self.leading_spaces}",
+                f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}"
             )
         else:
-            print(f"{self.leading_spaces}Sunrise and Sunset data unavailable")
+            NWSHelpers.display_wrapped_text(
+                f"{self.leading_spaces}Sunrise and Sunset data unavailable"
+            )
 
     def display_forecast(self):
         response = requests.get(
@@ -270,9 +269,7 @@ class NWSManager:
                             f"{name}: {temperature}, {short_forecast}, {precip}"
                         )
 
-                    NWSHelpers.display_wrapped_text(
-                        forecast_row, f"{self.leading_spaces}"
-                    )
+                    NWSHelpers.display_wrapped_text(forecast_row)
                     if forecast_iteration == 8:
                         break
                     forecast_iteration = forecast_iteration + 1
@@ -369,7 +366,7 @@ class NWSHelpers:
         return time_in_am_pm
 
     @staticmethod
-    def display_wrapped_text(input_string, prefix_padding, max_width=55):
+    def display_wrapped_text(input_string, indent_spaces=2, max_width=55):
         result = []
 
         while len(input_string) > 0:
@@ -384,10 +381,10 @@ class NWSHelpers:
                 break
 
         for i in range(1, len(result)):
-            result[i] = f"{prefix_padding}{result[i]}"
+            result[i] = f"{NWSHelpers.get_padded_string(indent_spaces)}{result[i]}"
 
         for item in result:
-            print(f"{prefix_padding}{item}")
+            print(f"{NWSHelpers.get_padded_string(indent_spaces)}{item}")
 
 
 def main():
