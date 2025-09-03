@@ -199,39 +199,44 @@ class NWSManager:
         NWSHelpers.display_wrapped_text("-----")
 
     def display_sunrise_sunset(self):
-        response_sr_ss = requests.get(
-            f"{self.sunrise_sunset_url}lat={self.latitude}&lng={self.longitude}&tzid={self.time_zone}",
-            headers=self.headers,
-        )
-
         sunrise = None
         sunset = None
-        day_length = None
-        if response_sr_ss.status_code == 200:
-            data_object_sr_sr = json.loads(response_sr_ss.text)
-            sunrise = data_object_sr_sr["results"]["sunrise"]
-            sunset = data_object_sr_sr["results"]["sunset"]
-            day_length = data_object_sr_sr["results"]["day_length"]
-            if sunrise.count(":") > 1:
-                last_colon_index = sunrise.rfind(":")
-                sunrise = sunrise[:last_colon_index] + sunrise[last_colon_index + 3 :]
-            if sunset.count(":") > 1:
-                last_colon_index = sunset.rfind(":")
-                sunset = sunset[:last_colon_index] + sunset[last_colon_index + 3 :]
-            if day_length.count(":") > 1:
-                last_colon_index = day_length.rfind(":")
-                day_length = (
-                    day_length[:last_colon_index] + day_length[last_colon_index + 3 :]
-                )
+
+        try:
+            response_sr_ss = requests.get(
+                f"{self.sunrise_sunset_url}lat={self.latitude}&lng={self.longitude}&tzid={self.time_zone}",
+                headers=self.headers,
+            )
+
+            day_length = None
+            if response_sr_ss.status_code == 200:
+                data_object_sr_sr = json.loads(response_sr_ss.text)
+                sunrise = data_object_sr_sr["results"]["sunrise"]
+                sunset = data_object_sr_sr["results"]["sunset"]
+                day_length = data_object_sr_sr["results"]["day_length"]
+                if sunrise.count(":") > 1:
+                    last_colon_index = sunrise.rfind(":")
+                    sunrise = (
+                        sunrise[:last_colon_index] + sunrise[last_colon_index + 3 :]
+                    )
+                if sunset.count(":") > 1:
+                    last_colon_index = sunset.rfind(":")
+                    sunset = sunset[:last_colon_index] + sunset[last_colon_index + 3 :]
+                if day_length.count(":") > 1:
+                    last_colon_index = day_length.rfind(":")
+                    day_length = (
+                        day_length[:last_colon_index]
+                        + day_length[last_colon_index + 3 :]
+                    )
+        except Exception as ex:
+            pass
 
         if sunrise is not None and sunset is not None:
             NWSHelpers.display_wrapped_text(
                 f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}"
             )
         else:
-            NWSHelpers.display_wrapped_text(
-                f"{self.leading_spaces}Sunrise and Sunset data unavailable"
-            )
+            NWSHelpers.display_wrapped_text("Sunrise and Sunset data unavailable")
 
     def display_forecast(self):
         response = requests.get(
