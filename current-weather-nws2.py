@@ -83,117 +83,135 @@ class NWSManager:
                     ]
 
     def display_current_conditions(self):
-        response = requests.get(
-            f"{self.service_url}/stations/{self.closestStationIdentifier}/observations/latest",
-            headers=self.headers,
-        )
-
-        if response.status_code == 200:
-            # print (json.dumps(response.json(), indent=4))  # DEBUG ONLY!
-            data_object = json.loads(response.text)
-
-            updated_utc = data_object["properties"]["timestamp"]
-            local_update = NWSHelpers.get_local_time(
-                updated_utc, self.time_zone
-            ).lstrip("0")
-
-            print(f"{self.city}, {self.state}")
-            NWSHelpers.display_wrapped_text(
-                f"{self.closestStationName} @ {local_update}"
+        try:
+            response = requests.get(
+                f"{self.service_url}/stations/{self.closestStationIdentifier}/observations/latest",
+                headers=self.headers,
             )
 
-            current_temperature = NWSHelpers.get_whole_number(
-                NWSHelpers.get_fahrenheit_value(
-                    data_object["properties"]["temperature"]["value"],
-                    data_object["properties"]["temperature"]["unitCode"],
+            if response.status_code == 200:
+                # print (json.dumps(response.json(), indent=4))  # DEBUG ONLY!
+                data_object = json.loads(response.text)
+
+                updated_utc = data_object["properties"]["timestamp"]
+                local_update = NWSHelpers.get_local_time(
+                    updated_utc, self.time_zone
+                ).lstrip("0")
+
+                print(f"{self.city}, {self.state}")
+                NWSHelpers.display_wrapped_text(
+                    f"{self.closestStationName} @ {local_update}"
                 )
-            )
 
-            feels_like = data_object["properties"]["windChill"]["value"]
-            feels_like_unit_code = data_object["properties"]["windChill"]["unitCode"]
-            if feels_like is None:
-                feels_like = data_object["properties"]["heatIndex"]["value"]
-                feels_like_unit_code = data_object["properties"]["heatIndex"][
+                current_temperature = NWSHelpers.get_whole_number(
+                    NWSHelpers.get_fahrenheit_value(
+                        data_object["properties"]["temperature"]["value"],
+                        data_object["properties"]["temperature"]["unitCode"],
+                    )
+                )
+
+                feels_like = data_object["properties"]["windChill"]["value"]
+                feels_like_unit_code = data_object["properties"]["windChill"][
                     "unitCode"
                 ]
-            if feels_like is None:
-                feels_like = current_temperature
-            else:
-                feels_like = NWSHelpers.get_whole_number(
-                    NWSHelpers.get_fahrenheit_value(feels_like, feels_like_unit_code)
+                if feels_like is None:
+                    feels_like = data_object["properties"]["heatIndex"]["value"]
+                    feels_like_unit_code = data_object["properties"]["heatIndex"][
+                        "unitCode"
+                    ]
+                if feels_like is None:
+                    feels_like = current_temperature
+                else:
+                    feels_like = NWSHelpers.get_whole_number(
+                        NWSHelpers.get_fahrenheit_value(
+                            feels_like, feels_like_unit_code
+                        )
+                    )
+
+                if current_temperature == feels_like:
+                    feels_like_description = ""
+                else:
+                    feels_like_description = f" (feels like {feels_like}{degree_sign})"
+
+                relative_humidity = NWSHelpers.get_whole_number(
+                    data_object["properties"]["relativeHumidity"]["value"]
+                )
+                dew_point = data_object["properties"]["dewpoint"]["value"]
+                dew_point_unit_code = data_object["properties"]["dewpoint"]["unitCode"]
+                dew_point = NWSHelpers.get_whole_number(
+                    NWSHelpers.get_fahrenheit_value(dew_point, dew_point_unit_code)
                 )
 
-            if current_temperature == feels_like:
-                feels_like_description = ""
-            else:
-                feels_like_description = f" (feels like {feels_like}{degree_sign})"
+                wind_speed = data_object["properties"]["windSpeed"]["value"]
+                wind_speed_unit_code = data_object["properties"]["windSpeed"][
+                    "unitCode"
+                ]
+                wind_speed = NWSHelpers.get_whole_number(
+                    NWSHelpers.get_miles_value(wind_speed, wind_speed_unit_code)
+                )
 
-            relative_humidity = NWSHelpers.get_whole_number(
-                data_object["properties"]["relativeHumidity"]["value"]
-            )
-            dew_point = data_object["properties"]["dewpoint"]["value"]
-            dew_point_unit_code = data_object["properties"]["dewpoint"]["unitCode"]
-            dew_point = NWSHelpers.get_whole_number(
-                NWSHelpers.get_fahrenheit_value(dew_point, dew_point_unit_code)
-            )
+                wind_gust = data_object["properties"]["windGust"]["value"]
+                wind_gust_unit_code = data_object["properties"]["windGust"]["unitCode"]
+                wind_gust = NWSHelpers.get_whole_number(
+                    NWSHelpers.get_miles_value(wind_gust, wind_gust_unit_code)
+                )
 
-            wind_speed = data_object["properties"]["windSpeed"]["value"]
-            wind_speed_unit_code = data_object["properties"]["windSpeed"]["unitCode"]
-            wind_speed = NWSHelpers.get_whole_number(
-                NWSHelpers.get_miles_value(wind_speed, wind_speed_unit_code)
-            )
+                wind_direction = data_object["properties"]["windDirection"]["value"]
+                # wind_direction_unit_code = data_object['properties']['windDirection']['unitCode']
+                wind_direction = NWSHelpers.get_cardinal_direction(wind_direction)
 
-            wind_gust = data_object["properties"]["windGust"]["value"]
-            wind_gust_unit_code = data_object["properties"]["windGust"]["unitCode"]
-            wind_gust = NWSHelpers.get_whole_number(
-                NWSHelpers.get_miles_value(wind_gust, wind_gust_unit_code)
-            )
+                if wind_speed == "???" or wind_speed == "0":
+                    wind_description = "Wind is Calm"
+                else:
+                    wind_description = (
+                        f"Wind ({wind_direction}) Speed is {wind_speed} MPH"
+                    )
+                    if wind_gust != "???":
+                        wind_description = (
+                            f"{wind_description}, gusting to {wind_gust} MPH"
+                        )
 
-            wind_direction = data_object["properties"]["windDirection"]["value"]
-            # wind_direction_unit_code = data_object['properties']['windDirection']['unitCode']
-            wind_direction = NWSHelpers.get_cardinal_direction(wind_direction)
+                condition_summary = (
+                    "Current Temperature is not available"
+                    if current_temperature == "???"
+                    else f"{current_temperature}{degree_sign}{feels_like_description}"
+                )
+                condition_summary = f"{condition_summary}, {data_object['properties']['textDescription']}"
+                NWSHelpers.display_wrapped_text(condition_summary)
 
-            if wind_speed == "???" or wind_speed == "0":
-                wind_description = "Wind is Calm"
-            else:
-                wind_description = f"Wind ({wind_direction}) Speed is {wind_speed} MPH"
-                if wind_gust != "???":
-                    wind_description = f"{wind_description}, gusting to {wind_gust} MPH"
+                NWSHelpers.display_wrapped_text(
+                    f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}"
+                )
 
-            condition_summary = (
-                "Current Temperature is not available"
-                if current_temperature == "???"
-                else f"{current_temperature}{degree_sign}{feels_like_description}"
-            )
-            condition_summary = (
-                f"{condition_summary}, {data_object['properties']['textDescription']}"
-            )
-            NWSHelpers.display_wrapped_text(condition_summary)
-
+                NWSHelpers.display_wrapped_text(f"{wind_description}")
+        except Exception as ex:
             NWSHelpers.display_wrapped_text(
-                f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}"
+                f"Error retrieving current conditions: {ex}"
             )
-
-            NWSHelpers.display_wrapped_text(f"{wind_description}")
 
     def display_alerts(self):
-        response = requests.get(
-            f"{self.service_url}/alerts/active?point={self.latitude},{self.longitude}",
-            headers=self.headers,
-        )
+        try:
+            response = requests.get(
+                f"{self.service_url}/alerts/active?point={self.latitude},{self.longitude}",
+                headers=self.headers,
+            )
 
-        if response.status_code == 200:
-            data_object = json.loads(response.text)
+            if response.status_code == 200:
+                data_object = json.loads(response.text)
 
-            if len(data_object["features"]) > 0:
-                self.display_separator()
-                for feature in data_object["features"]:
-                    alert_endtime = feature["properties"]["ends"]
-                    current_datetime = NWSHelpers.get_current_datetime(self.time_zone)
-                    if alert_endtime >= current_datetime:
-                        NWSHelpers.display_wrapped_text(
-                            f"{feature['properties']['headline']}"
+                if len(data_object["features"]) > 0:
+                    self.display_separator()
+                    for feature in data_object["features"]:
+                        alert_endtime = feature["properties"]["ends"]
+                        current_datetime = NWSHelpers.get_current_datetime(
+                            self.time_zone
                         )
+                        if alert_endtime >= current_datetime:
+                            NWSHelpers.display_wrapped_text(
+                                f"{feature['properties']['headline']}"
+                            )
+        except Exception as ex:
+            NWSHelpers.display_wrapped_text(f"Error retrieving alerts: {ex}")
 
     def display_separator(self):
         NWSHelpers.display_wrapped_text("-----")
@@ -228,56 +246,63 @@ class NWSManager:
                         day_length[:last_colon_index]
                         + day_length[last_colon_index + 3 :]
                     )
-        except Exception as ex:
-            pass
 
-        if sunrise is not None and sunset is not None:
-            NWSHelpers.display_wrapped_text(
-                f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}"
-            )
-        else:
-            NWSHelpers.display_wrapped_text("Sunrise and Sunset data unavailable")
+            if sunrise is not None and sunset is not None:
+                NWSHelpers.display_wrapped_text(
+                    f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}"
+                )
+            else:
+                NWSHelpers.display_wrapped_text("Sunrise and Sunset data unavailable")
+        except Exception as ex:
+            NWSHelpers.display_wrapped_text(f"Error retrieving sunrise/sunset: {ex}")
 
     def display_forecast(self):
-        response = requests.get(
-            f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/forecast",
-            headers=self.headers,
-        )
+        try:
+            response = requests.get(
+                f"{self.service_url}/gridpoints/{self.wfo}/{self.gridX},{self.gridY}/forecast",
+                headers=self.headers,
+            )
 
-        if response.status_code == 200:
-            # print (json.dumps(response.json(), indent=4))  # DEBUG ONLY!
-            data_object = json.loads(response.text)
-            longest_name = 0
-            for period in range(0, 8):
-                name_length = len(data_object["properties"]["periods"][period]["name"])
-                longest_name = (
-                    name_length if name_length > longest_name else longest_name
-                )
+            if response.status_code == 200:
+                # print (json.dumps(response.json(), indent=4))  # DEBUG ONLY!
+                data_object = json.loads(response.text)
+                longest_name = 0
+                for period in range(0, 8):
+                    name_length = len(
+                        data_object["properties"]["periods"][period]["name"]
+                    )
+                    longest_name = (
+                        name_length if name_length > longest_name else longest_name
+                    )
 
-            forecast_iteration = 1
-            for period in data_object["properties"]["periods"]:
-                forecast_period_endtime = period["endTime"]
-                current_datetime = NWSHelpers.get_current_datetime(self.time_zone)
-                if forecast_period_endtime >= current_datetime:
-                    name = period["name"]
-                    temperature = f"{period['temperature']}{degree_sign}"
-                    if forecast_iteration <= self.detail_count:
-                        short_forecast = f"{period['detailedForecast']}"
-                    else:
-                        short_forecast = f"{period['shortForecast']}"
-                    precip = f"{period['probabilityOfPrecipitation']['value']}% precip"
-
-                    if forecast_iteration <= self.detail_count:
-                        forecast_row = f"{name}: {short_forecast}"
-                    else:
-                        forecast_row = (
-                            f"{name}: {temperature}, {short_forecast}, {precip}"
+                forecast_iteration = 1
+                for period in data_object["properties"]["periods"]:
+                    forecast_period_endtime = period["endTime"]
+                    current_datetime = NWSHelpers.get_current_datetime(self.time_zone)
+                    if forecast_period_endtime >= current_datetime:
+                        name = period["name"]
+                        temperature = f"{period['temperature']}{degree_sign}"
+                        if forecast_iteration <= self.detail_count:
+                            short_forecast = f"{period['detailedForecast']}"
+                        else:
+                            short_forecast = f"{period['shortForecast']}"
+                        precip = (
+                            f"{period['probabilityOfPrecipitation']['value']}% precip"
                         )
 
-                    NWSHelpers.display_wrapped_text(forecast_row)
-                    if forecast_iteration == 8:
-                        break
-                    forecast_iteration = forecast_iteration + 1
+                        if forecast_iteration <= self.detail_count:
+                            forecast_row = f"{name}: {short_forecast}"
+                        else:
+                            forecast_row = (
+                                f"{name}: {temperature}, {short_forecast}, {precip}"
+                            )
+
+                        NWSHelpers.display_wrapped_text(forecast_row)
+                        if forecast_iteration == 8:
+                            break
+                        forecast_iteration = forecast_iteration + 1
+        except Exception as ex:
+            NWSHelpers.display_wrapped_text(f"Error retrieving forecast: {ex}")
 
 
 class NWSHelpers:
