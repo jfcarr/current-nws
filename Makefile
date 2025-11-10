@@ -5,6 +5,7 @@ default:
 	@echo '  run-detail		-- Show details for first two forecast periods'
 	@echo '  run-nplat		-- Conditions and forecast for North Platte'
 	@echo '  run-alert      -- Show only one alert'
+	@echo '  run-width      -- Override maximum text width'
 	@echo '  help'
 	@echo '  deploy'
 
@@ -22,6 +23,9 @@ run-nplat:
 
 run-alert:
 	uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389 --stationid KMGY --alertcount 1
+
+run-width:
+	uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389 --stationid KMGY --maxwidth 70
 
 help:
 	uv run current-weather-nws2.py --help

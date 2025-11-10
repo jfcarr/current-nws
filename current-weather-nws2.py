@@ -24,6 +24,7 @@ class NWSManager:
         latitude,
         longitude,
         stationid,
+        max_width,
         detail_count,
         alert_count,
         detail_indent=2,
@@ -31,6 +32,7 @@ class NWSManager:
         self.latitude = latitude
         self.longitude = longitude
         self.stationid = stationid
+        self.max_width = max_width
         self.detail_count = detail_count
         self.alert_count = alert_count
         self.detail_indent = detail_indent
@@ -109,7 +111,8 @@ class NWSManager:
 
                 print(f"{self.city}, {self.state}")
                 NWSHelpers.display_wrapped_text(
-                    f"{self.closestStationName} @ {local_update}"
+                    f"{self.closestStationName} @ {local_update}",
+                    max_width=self.max_width,
                 )
 
                 current_temperature = NWSHelpers.get_whole_number(
@@ -186,17 +189,22 @@ class NWSManager:
                     else f"{current_temperature}{degree_sign}{feels_like_description}"
                 )
                 condition_summary = f"{condition_summary}, {data_object['properties']['textDescription']}"
-                NWSHelpers.display_wrapped_text(condition_summary)
-
                 NWSHelpers.display_wrapped_text(
-                    f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}"
+                    condition_summary, max_width=self.max_width
                 )
 
-                NWSHelpers.display_wrapped_text(f"{wind_description}")
+                NWSHelpers.display_wrapped_text(
+                    f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}",
+                    max_width=self.max_width,
+                )
+
+                NWSHelpers.display_wrapped_text(
+                    f"{wind_description}", max_width=self.max_width
+                )
 
         except Exception as ex:
             NWSHelpers.display_wrapped_text(
-                f"Error retrieving current conditions: {ex}"
+                f"Error retrieving current conditions: {ex}", max_width=self.max_width
             )
 
     def display_alerts(self):
@@ -230,18 +238,22 @@ class NWSManager:
                                 alert_text = f"{alert_text} (alert expires at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
                             """
                             NWSHelpers.display_wrapped_text(
-                                f"{feature['properties']['headline']}"
+                                f"{feature['properties']['headline']}", max_width=self.max_width
                             )
                             """
-                            NWSHelpers.display_wrapped_text(alert_text)
+                            NWSHelpers.display_wrapped_text(
+                                alert_text, max_width=self.max_width
+                            )
 
                         alert_iteration = alert_iteration + 1
 
         except Exception as ex:
-            NWSHelpers.display_wrapped_text(f"Error retrieving alerts: {ex}")
+            NWSHelpers.display_wrapped_text(
+                f"Error retrieving alerts: {ex}", max_width=self.max_width
+            )
 
     def display_separator(self):
-        NWSHelpers.display_wrapped_text("-----")
+        NWSHelpers.display_wrapped_text("-----", max_width=self.max_width)
 
     def display_sunrise_sunset(self):
         sunrise = None
@@ -276,12 +288,17 @@ class NWSManager:
 
             if sunrise is not None and sunset is not None:
                 NWSHelpers.display_wrapped_text(
-                    f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}"
+                    f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}",
+                    max_width=self.max_width,
                 )
             else:
-                NWSHelpers.display_wrapped_text("Sunrise and Sunset data unavailable")
+                NWSHelpers.display_wrapped_text(
+                    "Sunrise and Sunset data unavailable", max_width=self.max_width
+                )
         except Exception as ex:
-            NWSHelpers.display_wrapped_text(f"Error retrieving sunrise/sunset: {ex}")
+            NWSHelpers.display_wrapped_text(
+                f"Error retrieving sunrise/sunset: {ex}", max_width=self.max_width
+            )
 
     def display_forecast(self):
         try:
@@ -324,12 +341,16 @@ class NWSManager:
                                 f"{name}: {temperature}, {short_forecast}, {precip}"
                             )
 
-                        NWSHelpers.display_wrapped_text(forecast_row)
+                        NWSHelpers.display_wrapped_text(
+                            forecast_row, max_width=self.max_width
+                        )
                         if forecast_iteration == 8:
                             break
                         forecast_iteration = forecast_iteration + 1
         except Exception as ex:
-            NWSHelpers.display_wrapped_text(f"Error retrieving forecast: {ex}")
+            NWSHelpers.display_wrapped_text(
+                f"Error retrieving forecast: {ex}", max_width=self.max_width
+            )
 
 
 class NWSHelpers:
@@ -459,6 +480,12 @@ def main():
         default="NONE",
     )
     parser.add_argument(
+        "--maxwidth",
+        type=int,
+        help="Maximum character width of displayed text. Default is 55.",
+        default=55,
+    )
+    parser.add_argument(
         "--detailcount",
         type=int,
         help="Periods of detailed forecast to show.",
@@ -467,13 +494,18 @@ def main():
     parser.add_argument(
         "--alertcount",
         type=int,
-        help="Maximum number of alerts to show.",
+        help="Maximum number of alerts to show. Default is 99 (all)",
         default=99,
     )
     args = parser.parse_args()
 
     nws_mgr = NWSManager(
-        args.latitude, args.longitude, args.stationid, args.detailcount, args.alertcount
+        args.latitude,
+        args.longitude,
+        args.stationid,
+        args.maxwidth,
+        args.detailcount,
+        args.alertcount,
     )
     nws_mgr.display_current_conditions()
     nws_mgr.display_sunrise_sunset()
