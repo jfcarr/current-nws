@@ -235,7 +235,7 @@ class NWSManager:
                                 "\n", " "
                             )
                             if alert_endtime is not None:
-                                alert_text = f"{alert_text} (alert expires at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
+                                alert_text = f"{alert_text} (alert expires on {NWSHelpers.get_local_day_of_week(alert_endtime, self.time_zone)} at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
                             """
                             NWSHelpers.display_wrapped_text(
                                 f"{feature['properties']['headline']}", max_width=self.max_width
@@ -430,6 +430,18 @@ class NWSHelpers:
     @staticmethod
     def get_padded_string(length):
         return " " * length
+
+    @staticmethod
+    def get_local_day_of_week(utc_time_str, local_tz):
+        utc_time = datetime.fromisoformat(utc_time_str)
+
+        local_tz = pytz.timezone(local_tz)
+
+        local_time = utc_time.astimezone(local_tz)
+
+        day_of_week = local_time.strftime("%A")
+
+        return day_of_week
 
     @staticmethod
     def get_local_time(utc_time_str, local_tz):
