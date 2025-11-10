@@ -218,12 +218,17 @@ class NWSManager:
                         )
 
                         if alert_endtime is None or alert_endtime >= current_datetime:
+                            alert_text = feature["properties"]["description"].replace(
+                                "\n", " "
+                            )
+                            if alert_endtime is not None:
+                                alert_text = f"{alert_text} (alert expires at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
+                            """
                             NWSHelpers.display_wrapped_text(
                                 f"{feature['properties']['headline']}"
                             )
-                            NWSHelpers.display_wrapped_text(
-                                f"{feature['properties']['description'].replace('\n', ' ')}"
-                            )
+                            """
+                            NWSHelpers.display_wrapped_text(alert_text)
         except Exception as ex:
             NWSHelpers.display_wrapped_text(f"Error retrieving alerts: {ex}")
 
