@@ -19,7 +19,14 @@ degree_sign = "\N{DEGREE SIGN}"
 
 
 class NWSManager:
-    def __init__(self, latitude, longitude, stationid, detail_count, detail_indent=2):
+    def __init__(
+        self,
+        latitude,
+        longitude,
+        stationid,
+        detail_count,
+        detail_indent=2,
+    ):
         self.latitude = latitude
         self.longitude = longitude
         self.stationid = stationid
@@ -184,6 +191,7 @@ class NWSManager:
                 )
 
                 NWSHelpers.display_wrapped_text(f"{wind_description}")
+
         except Exception as ex:
             NWSHelpers.display_wrapped_text(
                 f"Error retrieving current conditions: {ex}"
@@ -203,12 +211,18 @@ class NWSManager:
                     self.display_separator()
                     for feature in data_object["features"]:
                         alert_endtime = feature["properties"]["ends"]
+                        if alert_endtime is None:
+                            alert_endtime = feature["properties"]["expires"]
                         current_datetime = NWSHelpers.get_current_datetime(
                             self.time_zone
                         )
-                        if alert_endtime >= current_datetime:
+
+                        if alert_endtime is None or alert_endtime >= current_datetime:
                             NWSHelpers.display_wrapped_text(
                                 f"{feature['properties']['headline']}"
+                            )
+                            NWSHelpers.display_wrapped_text(
+                                f"{feature['properties']['description'].replace('\n', ' ')}"
                             )
         except Exception as ex:
             NWSHelpers.display_wrapped_text(f"Error retrieving alerts: {ex}")
