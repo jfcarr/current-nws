@@ -25,12 +25,14 @@ class NWSManager:
         longitude,
         stationid,
         detail_count,
+        alert_count,
         detail_indent=2,
     ):
         self.latitude = latitude
         self.longitude = longitude
         self.stationid = stationid
         self.detail_count = detail_count
+        self.alert_count = alert_count
         self.detail_indent = detail_indent
         self.leading_spaces = NWSHelpers.get_padded_string(detail_indent)
         self.service_url = "https://api.weather.gov"
@@ -209,7 +211,10 @@ class NWSManager:
 
                 if len(data_object["features"]) > 0:
                     self.display_separator()
+                    alert_iteration = 1
                     for feature in data_object["features"]:
+                        if alert_iteration > self.alert_count:
+                            break
                         alert_endtime = feature["properties"]["ends"]
                         if alert_endtime is None:
                             alert_endtime = feature["properties"]["expires"]
@@ -229,6 +234,9 @@ class NWSManager:
                             )
                             """
                             NWSHelpers.display_wrapped_text(alert_text)
+
+                        alert_iteration = alert_iteration + 1
+
         except Exception as ex:
             NWSHelpers.display_wrapped_text(f"Error retrieving alerts: {ex}")
 
@@ -456,10 +464,16 @@ def main():
         help="Periods of detailed forecast to show.",
         default=0,
     )
+    parser.add_argument(
+        "--alertcount",
+        type=int,
+        help="Maximum number of alerts to show.",
+        default=99,
+    )
     args = parser.parse_args()
 
     nws_mgr = NWSManager(
-        args.latitude, args.longitude, args.stationid, args.detailcount
+        args.latitude, args.longitude, args.stationid, args.detailcount, args.alertcount
     )
     nws_mgr.display_current_conditions()
     nws_mgr.display_sunrise_sunset()
