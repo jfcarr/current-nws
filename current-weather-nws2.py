@@ -11,9 +11,11 @@
 
 import argparse
 import json
-import requests
+import os
 from datetime import datetime
+
 import pytz
+import requests
 
 degree_sign = "\N{DEGREE SIGN}"
 
@@ -192,6 +194,12 @@ class NWSManager:
                 NWSHelpers.display_wrapped_text(
                     condition_summary, max_width=self.max_width
                 )
+                file_path = os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    "current_weather_summary.txt",
+                )
+                with open(file_path, "w") as f:
+                    f.write(f"[ {condition_summary} @ {local_update} ]")
 
                 NWSHelpers.display_wrapped_text(
                     f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}",
