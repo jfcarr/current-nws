@@ -95,7 +95,7 @@ class NWSManager:
                         "timeZone"
                     ]
 
-    def display_current_conditions(self):
+    def display_current_conditions(self, include_time_in_text_summary=False):
         try:
             response = requests.get(
                 f"{self.service_url}/stations/{self.closestStationIdentifier}/observations/latest",
@@ -199,7 +199,10 @@ class NWSManager:
                     "current_weather_summary.txt",
                 )
                 with open(file_path, "w") as f:
-                    f.write(f"[ {condition_summary} @ {local_update} ]")
+                    output_text = condition_summary
+                    if include_time_in_text_summary:
+                        output_text = f"{output_text} @ {local_update}"
+                    f.write(f"[ {output_text} ]")
 
                 NWSHelpers.display_wrapped_text(
                     f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}",
