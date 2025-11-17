@@ -49,6 +49,9 @@ class NWSManager:
         self.sunrise_sunset_url = "https://api.sunrise-sunset.org/json?"
         self.get_points_station_info()
 
+        self.current_conditions = ""
+        self.active_alerts = False
+
     def get_points_station_info(self):
         response = requests.get(
             f"{self.service_url}/points/{self.latitude},{self.longitude}",
@@ -194,15 +197,12 @@ class NWSManager:
                 NWSHelpers.display_wrapped_text(
                     condition_summary, max_width=self.max_width
                 )
-                file_path = os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    "current_weather_summary.txt",
-                )
-                with open(file_path, "w") as f:
-                    output_text = condition_summary
-                    if include_time_in_text_summary:
-                        output_text = f"{output_text} @ {local_update}"
-                    f.write(f"[ {output_text} ]")
+
+                self.current_conditions = condition_summary
+                if include_time_in_text_summary:
+                    self.current_conditions = (
+                        f"{self.current_conditions} @ {local_update}"
+                    )
 
                 NWSHelpers.display_wrapped_text(
                     f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}",
@@ -220,6 +220,8 @@ class NWSManager:
 
     def display_alerts(self):
         try:
+            self.active_alerts = False
+
             response = requests.get(
                 f"{self.service_url}/alerts/active?point={self.latitude},{self.longitude}",
                 headers=self.headers,
@@ -229,6 +231,8 @@ class NWSManager:
                 data_object = json.loads(response.text)
 
                 if len(data_object["features"]) > 0:
+                    self.active_alerts = True
+
                     self.display_separator()
                     alert_iteration = 1
                     for feature in data_object["features"]:
@@ -362,6 +366,20 @@ class NWSManager:
             NWSHelpers.display_wrapped_text(
                 f"Error retrieving forecast: {ex}", max_width=self.max_width
             )
+
+    def write_current_weather_summary(self):
+        file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "current_weather_summary.txt",
+        )
+
+        with open(file_path, "w") as f:
+            output_text = self.current_conditions
+
+            if self.active_alerts:
+                output_text = f"{output_text} *"
+
+            f.write(f"[ {output_text} ]")
 
 
 class NWSHelpers:
@@ -535,6 +553,7 @@ def main():
     nws_mgr.display_alerts()
     nws_mgr.display_separator()
     nws_mgr.display_forecast()
+    nws_mgr.write_current_weather_summary()
 
 
 if __name__ == "__main__":
