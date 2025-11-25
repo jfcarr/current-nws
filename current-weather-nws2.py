@@ -377,7 +377,7 @@ class NWSManager:
             output_text = self.current_conditions
 
             if self.active_alerts:
-                output_text = f"{output_text} (alert)"
+                output_text = f"{output_text} *"
 
             f.write(f"[ {output_text} ]")
 
