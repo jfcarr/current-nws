@@ -50,7 +50,7 @@ class NWSManager:
         self.get_points_station_info()
 
         self.current_conditions = ""
-        self.active_alerts = False
+        self.active_alert_count = 0
 
     def get_points_station_info(self):
         response = requests.get(
@@ -220,7 +220,7 @@ class NWSManager:
 
     def display_alerts(self):
         try:
-            self.active_alerts = False
+            self.active_alert_count = 0
 
             response = requests.get(
                 f"{self.service_url}/alerts/active?point={self.latitude},{self.longitude}",
@@ -231,13 +231,12 @@ class NWSManager:
                 data_object = json.loads(response.text)
 
                 if len(data_object["features"]) > 0:
-                    self.active_alerts = True
-
                     self.display_separator()
                     alert_iteration = 1
                     for feature in data_object["features"]:
                         if alert_iteration > self.alert_count:
                             break
+                        self.active_alert_count = self.active_alert_count + 1
                         alert_endtime = feature["properties"]["ends"]
                         if alert_endtime is None:
                             alert_endtime = feature["properties"]["expires"]
@@ -376,8 +375,8 @@ class NWSManager:
         with open(file_path, "w") as f:
             output_text = self.current_conditions
 
-            if self.active_alerts:
-                output_text = f"{output_text} *"
+            if self.active_alert_count > 0:
+                output_text = f"{output_text} {'*' * self.active_alert_count}"
 
             f.write(f"[ {output_text} ]")
 
