@@ -1,3 +1,6 @@
+SCRIPT_BASE_NAME = current_weather_nws
+SCRIPT_NAME = $(SCRIPT_BASE_NAME).py
+
 default:
 	@echo 'Targets:'
 	@echo '  run			-- Just latitude and longitude'
@@ -10,25 +13,25 @@ default:
 	@echo '  deploy'
 
 run:
-	uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389
+	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389
 
 run-s:
-	uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389 --stationid KMGY
+	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389 --stationid KMGY
 
 run-detail:
-	uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389 --stationid KMGY --detailcount 2
+	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389 --stationid KMGY --detailcount 2
 
 run-nplat:
-	uv run current-weather-nws2.py --latitude 41.131538 --longitude -100.821226 --detailcount 2
+	uv run $(SCRIPT_NAME) --latitude 41.131538 --longitude -100.821226 --detailcount 2
 
 run-alert:
-	uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389 --stationid KMGY --alertcount 1
+	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389 --stationid KMGY --alertcount 1
 
 run-width:
-	uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389 --stationid KMGY --maxwidth 70
+	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389 --stationid KMGY --maxwidth 70
 
 help:
-	uv run current-weather-nws2.py --help
+	uv run $(SCRIPT_NAME) --help
 
 deploy:
-	cp current-weather-nws2.py ~/bin/current-weather-nws2
+	cp $(SCRIPT_NAME) ~/bin/$(SCRIPT_BASE_NAME)

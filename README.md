@@ -7,7 +7,7 @@ This project requires [uv](https://docs.astral.sh/uv/).
 Example:
 
 ```bash
-uv run current-weather-nws2.py --latitude 39.747222 --longitude -84.536389
+uv run current_weather_nws.py --latitude 39.747222 --longitude -84.536389
 ```
 
 Output (nearest NWS station):
