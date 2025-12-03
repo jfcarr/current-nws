@@ -117,6 +117,7 @@ class NWSManager:
                 print(f"{self.city}, {self.state}")
                 NWSHelpers.display_wrapped_text(
                     f"{self.closestStationName} @ {local_update}",
+                    indent_spaces=self.detail_indent,
                     max_width=self.max_width,
                 )
 
@@ -195,7 +196,9 @@ class NWSManager:
                 )
                 condition_summary = f"{condition_summary}, {data_object['properties']['textDescription']}"
                 NWSHelpers.display_wrapped_text(
-                    condition_summary, max_width=self.max_width
+                    condition_summary,
+                    indent_spaces=self.detail_indent,
+                    max_width=self.max_width,
                 )
 
                 self.current_conditions = condition_summary
@@ -206,16 +209,21 @@ class NWSManager:
 
                 NWSHelpers.display_wrapped_text(
                     f"Relative Humidity is {'not available' if relative_humidity == '???' else f'{relative_humidity}%'}, Dewpoint is {'not available' if dew_point == '???' else f'{dew_point}{degree_sign}'}",
+                    indent_spaces=self.detail_indent,
                     max_width=self.max_width,
                 )
 
                 NWSHelpers.display_wrapped_text(
-                    f"{wind_description}", max_width=self.max_width
+                    f"{wind_description}",
+                    indent_spaces=self.detail_indent,
+                    max_width=self.max_width,
                 )
 
         except Exception as ex:
             NWSHelpers.display_wrapped_text(
-                f"Error retrieving current conditions: {ex}", max_width=self.max_width
+                f"Error retrieving current conditions: {ex}",
+                indent_spaces=self.detail_indent,
+                max_width=self.max_width,
             )
 
     def display_alerts(self):
@@ -252,22 +260,28 @@ class NWSManager:
                                 alert_text = f"{alert_text} (alert expires on {NWSHelpers.get_local_day_of_week(alert_endtime, self.time_zone)} at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
                             """
                             NWSHelpers.display_wrapped_text(
-                                f"{feature['properties']['headline']}", max_width=self.max_width
+                                f"{feature['properties']['headline']}", indent_spaces=self.detail_indent, max_width=self.max_width
                             )
                             """
                             NWSHelpers.display_wrapped_text(
-                                alert_text, max_width=self.max_width
+                                alert_text,
+                                indent_spaces=self.detail_indent,
+                                max_width=self.max_width,
                             )
 
                         alert_iteration = alert_iteration + 1
 
         except Exception as ex:
             NWSHelpers.display_wrapped_text(
-                f"Error retrieving alerts: {ex}", max_width=self.max_width
+                f"Error retrieving alerts: {ex}",
+                indent_spaces=self.detail_indent,
+                max_width=self.max_width,
             )
 
     def display_separator(self):
-        NWSHelpers.display_wrapped_text("-----", max_width=self.max_width)
+        NWSHelpers.display_wrapped_text(
+            "-----", indent_spaces=self.detail_indent, max_width=self.max_width
+        )
 
     def display_sunrise_sunset(self):
         sunrise = None
@@ -303,15 +317,20 @@ class NWSManager:
             if sunrise is not None and sunset is not None:
                 NWSHelpers.display_wrapped_text(
                     f"Sun rise/set, daylight: {sunrise}/{sunset}, {day_length}",
+                    indent_spaces=self.detail_indent,
                     max_width=self.max_width,
                 )
             else:
                 NWSHelpers.display_wrapped_text(
-                    "Sunrise and Sunset data unavailable", max_width=self.max_width
+                    "Sunrise and Sunset data unavailable",
+                    indent_spaces=self.detail_indent,
+                    max_width=self.max_width,
                 )
         except Exception as ex:
             NWSHelpers.display_wrapped_text(
-                f"Error retrieving sunrise/sunset: {ex}", max_width=self.max_width
+                f"Error retrieving sunrise/sunset: {ex}",
+                indent_spaces=self.detail_indent,
+                max_width=self.max_width,
             )
 
     def display_forecast(self):
@@ -356,14 +375,18 @@ class NWSManager:
                             )
 
                         NWSHelpers.display_wrapped_text(
-                            forecast_row, max_width=self.max_width
+                            forecast_row,
+                            indent_spaces=self.detail_indent,
+                            max_width=self.max_width,
                         )
                         if forecast_iteration == 8:
                             break
                         forecast_iteration = forecast_iteration + 1
         except Exception as ex:
             NWSHelpers.display_wrapped_text(
-                f"Error retrieving forecast: {ex}", max_width=self.max_width
+                f"Error retrieving forecast: {ex}",
+                indent_spaces=self.detail_indent,
+                max_width=self.max_width,
             )
 
     def write_current_weather_summary(self):
@@ -537,6 +560,9 @@ def main():
         help="Maximum number of alerts to show. Default is 99 (all)",
         default=99,
     )
+    parser.add_argument(
+        "--indent", type=int, help="Number of spaces to indent wrapped text", default=2
+    )
     args = parser.parse_args()
 
     nws_mgr = NWSManager(
@@ -546,6 +572,7 @@ def main():
         args.maxwidth,
         args.detailcount,
         args.alertcount,
+        args.indent,
     )
     nws_mgr.display_current_conditions()
     nws_mgr.display_sunrise_sunset()
