@@ -253,16 +253,11 @@ class NWSManager:
                         )
 
                         if alert_endtime is None or alert_endtime >= current_datetime:
-                            alert_text = feature["properties"]["description"].replace(
-                                "\n", " "
-                            )
+                            alert_text = f"{feature['properties']['headline']}: {feature['properties']['description'].replace('\n', ' ')}"
+
                             if alert_endtime is not None:
-                                alert_text = f"{alert_text} (alert expires on {NWSHelpers.get_local_day_of_week(alert_endtime, self.time_zone)} at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
-                            """
-                            NWSHelpers.display_wrapped_text(
-                                f"{feature['properties']['headline']}", indent_spaces=self.detail_indent, max_width=self.max_width
-                            )
-                            """
+                                alert_text = f"{alert_text} (expires on {NWSHelpers.get_local_day_of_week(alert_endtime, self.time_zone)} at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
+
                             NWSHelpers.display_wrapped_text(
                                 alert_text,
                                 indent_spaces=self.detail_indent,
