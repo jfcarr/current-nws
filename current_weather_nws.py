@@ -29,6 +29,7 @@ class NWSManager:
         max_width,
         detail_count,
         alert_count,
+        alert_detail,
         detail_indent=2,
     ):
         self.latitude = latitude
@@ -37,6 +38,7 @@ class NWSManager:
         self.max_width = max_width
         self.detail_count = detail_count
         self.alert_count = alert_count
+        self.alert_detail = alert_detail
         self.detail_indent = detail_indent
         self.leading_spaces = NWSHelpers.get_padded_string(detail_indent)
         self.service_url = "https://api.weather.gov"
@@ -253,7 +255,10 @@ class NWSManager:
                         )
 
                         if alert_endtime is None or alert_endtime >= current_datetime:
-                            alert_text = f"{feature['properties']['headline']}: {feature['properties']['description'].replace('\n', ' ')}"
+                            alert_text = f"{feature['properties']['headline']}"
+
+                            if self.alert_detail:
+                                alert_text = f"{alert_text}: {feature['properties']['description'].replace('\n', ' ')}"
 
                             if alert_endtime is not None:
                                 alert_text = f"{alert_text} (expires on {NWSHelpers.get_local_day_of_week(alert_endtime, self.time_zone)} at {NWSHelpers.get_local_time(alert_endtime, self.time_zone).lstrip('0')})"
@@ -556,6 +561,12 @@ def main():
         default=99,
     )
     parser.add_argument(
+        "--alertdetail",
+        action="store_true",
+        help="Show alert details",
+        default=False,
+    )
+    parser.add_argument(
         "--indent", type=int, help="Number of spaces to indent wrapped text", default=2
     )
     args = parser.parse_args()
@@ -567,6 +578,7 @@ def main():
         args.maxwidth,
         args.detailcount,
         args.alertcount,
+        args.alertdetail,
         args.indent,
     )
     nws_mgr.display_current_conditions()

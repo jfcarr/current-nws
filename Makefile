@@ -26,7 +26,7 @@ run-nplat:
 	uv run $(SCRIPT_NAME) --latitude 41.131538 --longitude -100.821226 --detailcount 2
 
 run-alert:
-	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389 --stationid KMGY --alertcount 1
+	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389 --stationid KMGY --alertcount 1 --alertdetail
 
 run-width:
 	uv run $(SCRIPT_NAME) --latitude 39.747222 --longitude -84.536389 --stationid KMGY --maxwidth 70
