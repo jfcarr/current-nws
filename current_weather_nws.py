@@ -257,7 +257,7 @@ class NWSManager:
                         )
 
                         if alert_endtime is None or alert_endtime >= current_datetime:
-                            alert_text = f"{feature['properties']['headline']}"
+                            alert_text = f"{feature['properties']['event']}"
 
                             if self.alert_detail:
                                 alert_text = f"{alert_text}: {feature['properties']['description'].replace('\n', ' ')}"
