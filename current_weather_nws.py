@@ -165,24 +165,29 @@ class NWSManager:
                 )
 
                 wind_speed = data_object["properties"]["windSpeed"]["value"]
-                wind_speed_unit_code = data_object["properties"]["windSpeed"][
-                    "unitCode"
-                ]
-                wind_speed = NWSHelpers.get_whole_number(
-                    NWSHelpers.get_miles_value(wind_speed, wind_speed_unit_code)
-                )
+                if wind_speed is not None:
+                    wind_speed_unit_code = data_object["properties"]["windSpeed"][
+                        "unitCode"
+                    ]
+                    wind_speed = NWSHelpers.get_whole_number(
+                        NWSHelpers.get_miles_value(wind_speed, wind_speed_unit_code)
+                    )
 
-                wind_gust = data_object["properties"]["windGust"]["value"]
-                wind_gust_unit_code = data_object["properties"]["windGust"]["unitCode"]
-                wind_gust = NWSHelpers.get_whole_number(
-                    NWSHelpers.get_miles_value(wind_gust, wind_gust_unit_code)
-                )
+                    wind_gust = data_object["properties"]["windGust"]["value"]
+                    wind_gust_unit_code = data_object["properties"]["windGust"][
+                        "unitCode"
+                    ]
+                    wind_gust = NWSHelpers.get_whole_number(
+                        NWSHelpers.get_miles_value(wind_gust, wind_gust_unit_code)
+                    )
 
-                wind_direction = data_object["properties"]["windDirection"]["value"]
-                # wind_direction_unit_code = data_object['properties']['windDirection']['unitCode']
-                wind_direction = NWSHelpers.get_cardinal_direction(wind_direction)
+                    wind_direction = data_object["properties"]["windDirection"]["value"]
+                    # wind_direction_unit_code = data_object['properties']['windDirection']['unitCode']
+                    wind_direction = NWSHelpers.get_cardinal_direction(wind_direction)
 
-                if wind_speed == "???" or wind_speed == "0":
+                if wind_speed is None:
+                    wind_description = "Wind Speed is not available"
+                elif wind_speed == "???" or wind_speed == "0":
                     wind_description = "Wind is Calm"
                 else:
                     wind_description = (
