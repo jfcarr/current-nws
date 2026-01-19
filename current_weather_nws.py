@@ -479,6 +479,7 @@ class NWSHelpers:
     def get_whole_number(input_number):
         try:
             rounded_number = round(input_number, 0)
+            rounded_number = 0 if abs(rounded_number) == 0 else rounded_number
             formatted_number = f"{rounded_number:.2f}".rstrip("0").rstrip(".")
 
             return formatted_number
