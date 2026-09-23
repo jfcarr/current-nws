@@ -1,0 +1,6 @@
+.vscode/
+.venv/
+current_weather_summary.txt
+current_weather_conditions.txt
+current_weather_sun.txt
+current_weather_forecast.txt
